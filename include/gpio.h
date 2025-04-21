@@ -23,6 +23,7 @@ enum { GPIO_MODE_INPUT, GPIO_MODE_OUTPUT, GPIO_MODE_AF, GPIO_MODE_ANALOG };
 static inline void gpio_set_mode(uint16_t pin, uint8_t mode) {
     gpio *gp = GPIO(PINBANK(pin)); // GPIO bank
     int n = PINNO(pin);
+    RCC->AHB1ENR |= BIT(PINBANK(pin)); // Enable GPIO clock
     gp->MODER &= ~(3U << (n * 2)); // Clear existing setting
     gp->MODER |= (mode & 3) << (n * 2); // Set new mode
 }
@@ -30,4 +31,12 @@ static inline void gpio_set_mode(uint16_t pin, uint8_t mode) {
 static inline void gpio_write(uint16_t pin, bool val) {
   gpio *gp = GPIO(PINBANK(pin));
   gp->BSRR = (1U << PINNO(pin)) << (val ? 0 : 16);
+}
+
+static inline void gpio_set_af(uint16_t pin, uint8_t func) {
+    gpio *gp = GPIO(PINBANK(pin));
+    int n = PINNO(pin);
+    // n >> 3 = 0 for pins 0-7, 1 for pins 8-15
+    gp -> AFR[n >> 3] &= ~(15UL << ((4*(n & 7))))        // Clear register
+    gp -> AFR[n >> 3] |= ((func & 15UL) << (4*(n & 7))); // Write new value
 }
