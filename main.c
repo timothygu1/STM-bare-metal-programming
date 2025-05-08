@@ -3,19 +3,22 @@
 #include <stdio.h>
 #include "./include/gpio.h"
 #include "./include/systick.h"
+#include "./include/uart.h"
 
 int main(void) {
     uint16_t led = PIN('A', 5); // User LED
-    RCC->AHB1ENR |= BIT(PINBANK(led));
     systick_init(16000000 / 1000);
     gpio_set_mode(led, GPIO_MODE_OUTPUT);
 
-    uint32_t timer, period = 500;
+    uint32_t timer, period = 1000;
+
+    uart_init(UART2, 115200);
     for (;;) {
       if (timer_expired(&timer, period, s_ticks)) {
         static bool on;
         gpio_write(led, on);
         on = !on;
+        uart_write_buf(UART2, "hi\r\n", 4);
       }
     }
     return 0;

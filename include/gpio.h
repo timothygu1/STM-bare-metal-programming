@@ -37,6 +37,6 @@ static inline void gpio_set_af(uint16_t pin, uint8_t func) {
     gpio *gp = GPIO(PINBANK(pin));
     int n = PINNO(pin);
     // n >> 3 = 0 for pins 0-7, 1 for pins 8-15
-    gp -> AFR[n >> 3] &= ~(15UL << ((4*(n & 7))))        // Clear register
+    gp -> AFR[n >> 3] &= ~(15UL << ((4*(n & 7))));        // Clear register
     gp -> AFR[n >> 3] |= ((func & 15UL) << (4*(n & 7))); // Write new value
 }
